@@ -1,0 +1,43 @@
+#include "Game.hpp"
+#include <iostream>
+#include <string>
+
+//Takes care of the entire loop and communication
+
+Game gGame;
+
+void run()
+{
+    std::cout << gGame.getStringPosition();
+    while(true)
+    {
+
+        std::string move;
+        std::cin >> move;
+
+        if (move != "show")
+        {
+            while (gGame.rawMove(move))
+            {
+                //Error occured
+                std::cout << "Please, write your input again...\n";
+                std::cin >> move;
+
+            }
+        }
+        else
+        {
+            //TODO
+        }
+        std::cout << "\n" << gGame.getStringPosition();
+    }
+}
+
+int main()
+{
+
+    std::cout << "Chessboard starting...\n";
+    run();
+
+    return 0;
+}
