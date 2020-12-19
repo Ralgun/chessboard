@@ -119,8 +119,6 @@ bool Game::rawMove(std::string raw)
     //Converting character to digit
     char yEnd   = raw[3] - '0';
 
-    std::cout << "Made it past the fetching";
-
     //Conversion
     Move moveVar;
     moveVar.xStart  = alphabetToNumber(xStart);
@@ -133,11 +131,6 @@ bool Game::rawMove(std::string raw)
         //Promotion
         moveVar.promotion = symbolToEnum(raw[4]);
     }
-
-    std::cout << "\n"<< (int)moveVar.xStart << " " << (int)moveVar.yStart << "a\n";
-
-
-    std::cout << "Past the conversion";
 
     //Verify
     PieceReference p = pos.position[moveVar.xStart][moveVar.yStart];
@@ -158,15 +151,9 @@ bool Game::rawMove(std::string raw)
     return true;
 }
 
-int testvec = 0;
-
 bool Game::move(Move pMove)
 {
-    testvec++;
-    if (testvec == 3)
-    {
-        std::cout << "\ntest" << (&positions[0] == &positions[1]);
-    }
+
     //TODO castles and en peasant
     //Fetching current position
     Position pos     = positions.back();
