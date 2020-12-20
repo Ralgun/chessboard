@@ -145,7 +145,7 @@ bool Game::rawMove(std::string raw)
     {
         if (m == moveVar)
         {
-            return move(moveVar);
+            return move(m);
         }
     }
     return true;
@@ -165,9 +165,16 @@ bool Game::move(Move pMove)
     }
 
     pos.position[pMove.xStart][pMove.yStart].piece = PieceEnum::NOTHING;
+    //Special case: en passant
+    if (pMove.enpassant)
+    {
+        char mult = pos.isWhiteOnMove ? -1 : 1;
+        pos.position[pMove.xEnd][pMove.yEnd+mult].piece = PieceEnum::NOTHING;
+    }
     pos.position[pMove.xEnd][pMove.yEnd] = p;
 
     pos.isWhiteOnMove = !pos.isWhiteOnMove;
+    pMove.moved = p.piece;
     pos.lastMove = pMove;
     pos.firstMove = false;
 

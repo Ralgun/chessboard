@@ -6,11 +6,12 @@ std::vector<Move> Pawn::findLegalMoves(char x, char y, bool isWhite, Position po
     std::vector<Move> moves;
     char mult     = 1;
     char initialY = 1;
+    char enemyY   = 6;
     if (!isWhite)
     {
-        std::cout << "black";
         mult     = -1;
         initialY =  6;
+        enemyY   =  1;
     }
     
     if (pos.position[x][y+mult].piece == PieceEnum::NOTHING)
@@ -22,7 +23,6 @@ std::vector<Move> Pawn::findLegalMoves(char x, char y, bool isWhite, Position po
         }
     }
     //Captures
-    //TODO en peasant
     if (pos.position[x-1][y+mult].piece != PieceEnum::NOTHING && pos.position[x-1][y+mult].isWhite != isWhite)
     {
         moves.push_back({x, y, x-1, y+mult});
@@ -31,6 +31,17 @@ std::vector<Move> Pawn::findLegalMoves(char x, char y, bool isWhite, Position po
     {
         moves.push_back({x, y, x+1, y+mult});
     }
+
+    //En passant
+    if (pos.lastMove.moved == PieceEnum::PAWN && abs(pos.lastMove.xEnd - x) == 1 &&
+        pos.lastMove.yStart == enemyY && y == pos.lastMove.yEnd)
+    {
+        Move m = {x, y, pos.lastMove.xEnd, y+mult};
+        m.enpassant = true;
+        moves.push_back(m);
+    }
+
+    //TODO promotion
 
     return moves;
 }
