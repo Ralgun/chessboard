@@ -16,20 +16,66 @@ std::vector<Move> Pawn::findLegalMoves(char x, char y, bool isWhite, Position po
     
     if (pos.position[x][y+mult].piece == PieceEnum::NOTHING)
     {
-        moves.push_back({x, y, x, y+mult});
-        if (y == initialY && pos.position[x][y+2*(mult)].piece == PieceEnum::NOTHING)
+        //Promotion
+        if (y == enemyY)
         {
-            moves.push_back({x, y, x, y+(2*mult)});
+            Move m = {x, y, x, y+mult};
+            m.promotion = PieceEnum::QUEEN;
+            moves.push_back(m);
+            m.promotion = PieceEnum::ROOK;
+            moves.push_back(m);
+            m.promotion = PieceEnum::KNIGHT;
+            moves.push_back(m);
+            m.promotion = PieceEnum::BISHOP;
+            moves.push_back(m);
+        }
+        else 
+        {
+            moves.push_back({x, y, x, y+mult});
+            if (y == initialY && pos.position[x][y+2*(mult)].piece == PieceEnum::NOTHING)
+            {
+                moves.push_back({x, y, x, y+(2*mult)});
+            }
         }
     }
     //Captures
     if (pos.position[x-1][y+mult].piece != PieceEnum::NOTHING && pos.position[x-1][y+mult].isWhite != isWhite)
     {
-        moves.push_back({x, y, x-1, y+mult});
+        if (y == enemyY)
+        {
+            Move m = {x, y, x-1, y+mult};
+            m.promotion = PieceEnum::QUEEN;
+            moves.push_back(m);
+            m.promotion = PieceEnum::ROOK;
+            moves.push_back(m);
+            m.promotion = PieceEnum::KNIGHT;
+            moves.push_back(m);
+            m.promotion = PieceEnum::BISHOP;
+            moves.push_back(m);
+        }
+        else
+        {
+            moves.push_back({x, y, x-1, y+mult});
+        }
     }
     if (pos.position[x+1][y+mult].piece != PieceEnum::NOTHING && pos.position[x+1][y+mult].isWhite != isWhite)
     {
-        moves.push_back({x, y, x+1, y+mult});
+        if (y == enemyY)
+        {
+            Move m = {x, y, x+1, y+mult};
+            m.promotion = PieceEnum::QUEEN;
+            moves.push_back(m);
+            m.promotion = PieceEnum::ROOK;
+            moves.push_back(m);
+            m.promotion = PieceEnum::KNIGHT;
+            moves.push_back(m);
+            m.promotion = PieceEnum::BISHOP;
+            moves.push_back(m);
+        }
+        else
+        {
+            moves.push_back({x, y, x+1, y+mult});
+        }
     }
 
     //En passant
@@ -40,8 +86,6 @@ std::vector<Move> Pawn::findLegalMoves(char x, char y, bool isWhite, Position po
         m.enpassant = true;
         moves.push_back(m);
     }
-
-    //TODO promotion
 
     return moves;
 }
