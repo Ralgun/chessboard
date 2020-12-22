@@ -4,13 +4,22 @@ std::vector<Move> Rook::findLegalMoves(char x, char y, bool isWhite, Position po
 {
     std::vector<Move> moves;
 
-    //TODO probably not worth it creating 4 different cycles to avoid few if statements...
+    //TODO This is just terrible.
     //bottom
-    for (char i = y; i >= 0; i--)
+    for (char i = y-1; i >= 0; i--)
     {
         if (pos.position[x][i].piece == PieceEnum::NOTHING)
         {
-            moves.push_back({x, y, x, i});
+            Move m = {x, y, x, i};
+            if (x == 7)
+            {
+                m.removeShortCastle = true;
+            }
+            else if (x == 0)
+            {
+                m.removeLongCastle = true;
+            }
+            moves.push_back(m);
         }
         else if (pos.position[x][i].isWhite == isWhite)
         {
@@ -18,18 +27,35 @@ std::vector<Move> Rook::findLegalMoves(char x, char y, bool isWhite, Position po
         }
         else
         {
-            moves.push_back({x, y, x, i});
+            Move m = {x, y, x, i};
+            if (x == 7)
+            {
+                m.removeShortCastle = true;
+            }
+            else if (x == 0)
+            {
+                m.removeLongCastle = true;
+            }
+            moves.push_back(m);
             break;
         }
         
     }
     //left
-    for (char i = x; i >= 0; i--)
+    for (char i = x-1; i >= 0; i--)
     {
         if (pos.position[i][y].piece == PieceEnum::NOTHING)
         {
-            moves.push_back({x, y, i, y});
-
+            Move m = {x, y, i, y};
+            if (x == 7)
+            {
+                m.removeShortCastle = true;
+            }
+            else if (x == 0)
+            {
+                m.removeLongCastle = true;
+            }
+            moves.push_back(m);
         }
         else if (pos.position[i][y].isWhite == isWhite)
         {
@@ -37,7 +63,16 @@ std::vector<Move> Rook::findLegalMoves(char x, char y, bool isWhite, Position po
         }
         else
         {
-            moves.push_back({x, y, i, y});
+            Move m = {x, y, i, y};
+            if (x == 7)
+            {
+                m.removeShortCastle = true;
+            }
+            else if (x == 0)
+            {
+                m.removeLongCastle = true;
+            }
+            moves.push_back(m);
             break;
         }
     }
@@ -46,8 +81,16 @@ std::vector<Move> Rook::findLegalMoves(char x, char y, bool isWhite, Position po
     {
         if (pos.position[x][i].piece == PieceEnum::NOTHING)
         {
-            moves.push_back({x, y, x, i});
-
+            Move m = {x, y, x, i};
+            if (x == 7)
+            {
+                m.removeShortCastle = true;
+            }
+            else if (x == 0)
+            {
+                m.removeLongCastle = true;
+            }
+            moves.push_back(m);
         }
         else if (pos.position[x][i].isWhite == isWhite)
         {
@@ -55,7 +98,16 @@ std::vector<Move> Rook::findLegalMoves(char x, char y, bool isWhite, Position po
         }
         else
         {
-            moves.push_back({x, y, x, i});
+            Move m = {x, y, x, i};
+            if (x == 7)
+            {
+                m.removeShortCastle = true;
+            }
+            else if (x == 0)
+            {
+                m.removeLongCastle = true;
+            }
+            moves.push_back(m);
             break;
         }
     }
@@ -64,8 +116,16 @@ std::vector<Move> Rook::findLegalMoves(char x, char y, bool isWhite, Position po
     {
         if (pos.position[i][y].piece == PieceEnum::NOTHING)
         {
-            moves.push_back({x, y, i, y});
-
+            Move m = {x, y, i, y};
+            if (x == 7)
+            {
+                m.removeShortCastle = true;
+            }
+            else if (x == 0)
+            {
+                m.removeLongCastle = true;
+            }
+            moves.push_back(m);
         }
         else if (pos.position[i][y].isWhite == isWhite)
         {
@@ -73,7 +133,16 @@ std::vector<Move> Rook::findLegalMoves(char x, char y, bool isWhite, Position po
         }
         else
         {
-            moves.push_back({x, y, i, y});
+            Move m = {x, y, i, y};
+            if (x == 7)
+            {
+                m.removeShortCastle = true;
+            }
+            else if (x == 0)
+            {
+                m.removeLongCastle = true;
+            }
+            moves.push_back(m);
             break;
         }
     }

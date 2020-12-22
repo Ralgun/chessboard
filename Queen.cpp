@@ -5,7 +5,7 @@ std::vector<Move> Queen::findLegalMoves(char x, char y, bool isWhite, Position p
     std::vector<Move> moves;
 
     //Rook
-    for (char i = y; i >= 0; i--)
+    for (char i = y-1; i >= 0; i--)
     {
         if (pos.position[x][i].piece == PieceEnum::NOTHING)
         {
@@ -23,7 +23,7 @@ std::vector<Move> Queen::findLegalMoves(char x, char y, bool isWhite, Position p
         
     }
     //left
-    for (char i = x; i >= 0; i--)
+    for (char i = x-1; i >= 0; i--)
     {
         if (pos.position[i][y].piece == PieceEnum::NOTHING)
         {

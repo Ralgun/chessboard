@@ -165,13 +165,32 @@ bool Game::move(Move pMove)
     }
 
     pos.position[pMove.xStart][pMove.yStart].piece = PieceEnum::NOTHING;
+    pos.position[pMove.xEnd][pMove.yEnd] = p;
+
+    if (pos.isWhiteOnMove)
+    {
+        pos.whiteShortCastle = !pMove.removeShortCastle & pos.whiteShortCastle;
+        pos.whiteLongCastle = !pMove.removeLongCastle & pos.whiteLongCastle;
+    }
+    else
+    {
+        pos.blackShortCastle = !pMove.removeShortCastle & pos.blackShortCastle;
+        pos.blackLongCastle = !pMove.removeLongCastle & pos.blackLongCastle;
+    }
+
     //Special case: en passant
     if (pMove.enpassant)
     {
         char mult = pos.isWhiteOnMove ? -1 : 1;
         pos.position[pMove.xEnd][pMove.yEnd+mult].piece = PieceEnum::NOTHING;
     }
-    pos.position[pMove.xEnd][pMove.yEnd] = p;
+    //Special case: castling
+    if (pMove.castle)
+    {
+        PieceReference rook = pos.position[pMove.oldRookX][pMove.oldRookY];
+        pos.position[pMove.oldRookX][pMove.oldRookY].piece = PieceEnum::NOTHING;
+        pos.position[pMove.newRookX][pMove.newRookY] = rook;
+    }
 
     pos.isWhiteOnMove = !pos.isWhiteOnMove;
     pMove.moved = p.piece;

@@ -7,6 +7,8 @@ struct Move
     PieceEnum moved;
     PieceEnum promotion = PieceEnum::NOTHING;
     bool castle = false;
+    bool removeShortCastle = false;
+    bool removeLongCastle = false;
     bool enpassant = false;
     char oldRookX, oldRookY, newRookX, newRookY;
     bool operator==(const Move& rhs);
