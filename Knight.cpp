@@ -4,45 +4,30 @@ std::vector<Move> Knight::findLegalMoves(char x, char y, bool isWhite, Position 
 {
     std::vector<Move> moves;
 
-    //Top left
-    if ((x-1 >= 0 && y+2 < 8) && (pos.position[x-1][y+2].piece == PieceEnum::NOTHING || pos.position[x-1][y+2].isWhite != isWhite))
+    char longDirections[]  = {2, -2};    
+    char shortDirections[] = {1, -1};
+
+    for (char longerDir : longDirections)
     {
-        moves.push_back({x, y, x-1, y+2});
-    }
-    //Top right
-    if ((x+1 < 8 && y+2 < 8) && (pos.position[x+1][y+2].piece == PieceEnum::NOTHING || pos.position[x+1][y+2].isWhite != isWhite))
-    {
-        moves.push_back({x, y, x+1, y+2});
-    }
-    //Right top
-    if ((x+2 < 8 && y+1 < 8) && (pos.position[x+2][y+1].piece == PieceEnum::NOTHING || pos.position[x+2][y+1].isWhite != isWhite))
-    {
-        moves.push_back({x, y, x+2, y+1});
-    }
-    //Right bottom
-    if ((x+2 < 8 && y-1 >= 0) && (pos.position[x+2][y-1].piece == PieceEnum::NOTHING || pos.position[x+2][y-1].isWhite != isWhite))
-    {
-        moves.push_back({x, y, x+2, y-1});
-    }
-    //Bottom left
-    if ((x-1 >= 0 && y-2 >= 0) && (pos.position[x-1][y-2].piece == PieceEnum::NOTHING || pos.position[x-1][y-2].isWhite != isWhite))
-    {
-        moves.push_back({x, y, x-1, y-2});
-    }
-    //Bottom right
-    if ((x+1 < 8 && y-2 >= 0) && (pos.position[x+1][y-2].piece == PieceEnum::NOTHING || pos.position[x+1][y-2].isWhite != isWhite))
-    {
-        moves.push_back({x, y, x+1, y-2});
-    }
-    //Left bottom
-    if ((x-2 >= 0 && y-1 >= 0) && (pos.position[x-2][y-1].piece == PieceEnum::NOTHING || pos.position[x-2][y-1].isWhite != isWhite))
-    {
-        moves.push_back({x, y, x-2, y-1});
-    }
-    //Left top
-    if ((x-2 >= 0 && y+1 < 8) && (pos.position[x-2][y+1].piece == PieceEnum::NOTHING || pos.position[x-2][y+1].isWhite != isWhite))
-    {
-        moves.push_back({x, y, x-2, y+1});
+        for (char shorterDir : shortDirections)
+        {
+            char xNew = x + longerDir;
+            char yNew = y + shorterDir;
+            PieceReference p = pos.position[xNew][yNew];
+            if ((xNew < 8 && xNew >= 0) && (yNew < 8 && yNew >= 0) && 
+                (p.piece == PieceEnum::NOTHING || (p.isWhite != isWhite)))
+            {
+                moves.push_back({x, y, xNew, yNew});
+            }
+            xNew = x + shorterDir;
+            yNew = y + longerDir;
+            p = pos.position[xNew][yNew];
+            if ((xNew < 8 && xNew >= 0) && (yNew < 8 && yNew >= 0) && 
+                (p.piece == PieceEnum::NOTHING || (p.isWhite != isWhite)))
+            {
+                moves.push_back({x, y, xNew, yNew});
+            }
+        }
     }
 
     return moves;
