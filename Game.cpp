@@ -95,17 +95,7 @@ Game::Game()
     pos.firstMove     = true;
     pos.isWhiteOnMove = true;
     
-
     positions.push_back(pos);
-
-    //Setup piece systems
-    pieceSystems.push_back(new Pawn());
-    pieceSystems.push_back(new Rook());
-    pieceSystems.push_back(new Knight());
-    pieceSystems.push_back(new Bishop());
-    pieceSystems.push_back(new Queen());
-    pieceSystems.push_back(new King());
-
 }
 
 bool Game::rawMove(std::string raw)
@@ -140,7 +130,7 @@ bool Game::rawMove(std::string raw)
         return true;
     }
 
-    std::vector<Move> pieceMoves = pieceSystems[p.piece]->findLegalMoves(moveVar.xStart, moveVar.yStart, p.isWhite, pos);
+    std::vector<Move> pieceMoves = movement.findLegalMoves(moveVar.xStart, moveVar.yStart, pos);
     for (Move m : pieceMoves)
     {
         if (m == moveVar)
