@@ -2,8 +2,10 @@
 #include "PieceEnum.hpp"
 #include <math.h>
 
-Movement::Movement()
+Movement::Movement(Game* pGame)
 {
+    game = pGame;
+
     rookDirections.push_back(std::pair<char, char>(1,0));
     rookDirections.push_back(std::pair<char, char>(0,1));
     rookDirections.push_back(std::pair<char, char>(-1,0));
@@ -64,6 +66,52 @@ std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
     return moves;
 }
 
+bool Movement::isInCheck(char x, char y, bool checkWhite, Position pos)
+{
+    //TODO look for double checks
+    //Check for orthogonall movement (rooks, queens)
+    Move m = checkSlidingMovement(x, y, rookDirections, checkWhite, pos, nullptr).back();
+    if (pos.position[m.xEnd][m.yEnd].piece == PieceEnum::ROOK || pos.position[m.xEnd][m.yEnd].piece == PieceEnum::QUEEN)
+    {
+        return true;
+    }
+    //Check diagonal movement (queens, bishops)
+    Move m = checkSlidingMovement(x, y, bishopDirections, checkWhite, pos, nullptr).back();
+    if (pos.position[m.xEnd][m.yEnd].piece == PieceEnum::BISHOP || pos.position[m.xEnd][m.yEnd].piece == PieceEnum::QUEEN)
+    {
+        return true;
+    }
+    //Check knight movement
+    //Since checkKnightMovement() doesn't stop once it finds oponent's piece, we need to go trough each move
+    for (Move m : checkKnightMovement(x, y, checkWhite, pos, nullptr))
+    {
+        if (pos.position[m.xEnd][m.yEnd].piece == PieceEnum::KNIGHT)
+        {
+            return true;
+        }
+    }
+    //Check pawn movement
+    //It looks bad, but partially calculating pawn's movement avoids using entire findMovesForPawn(). findMovesForPawn() should be probably split
+    if (checkWhite)
+    {
+        if ((pos.position[x+1][y+1].piece == PieceEnum::PAWN && pos.position[x+1][y+1].isWhite == !checkWhite) ||
+            (pos.position[x-1][y+1].piece == PieceEnum::PAWN && pos.position[x-1][y+1].isWhite == !checkWhite))
+        {
+            return true;
+        }
+    }
+    else 
+    {
+        if ((pos.position[x+1][y-1].piece == PieceEnum::PAWN && pos.position[x+1][y-1].isWhite == !checkWhite) ||
+            (pos.position[x-1][y-1].piece == PieceEnum::PAWN && pos.position[x-1][y-1].isWhite == !checkWhite))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
 {
     std::vector<Move> moves;
@@ -83,6 +131,7 @@ std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
             m.oldRookY = 0;
             m.newRookX = 5;
             m.newRookY = 0;
+            m.moved = PieceEnum::KING;
             moves.push_back(m);
         }
         if (pos.whiteLongCastle && pos.position[3][0].piece == PieceEnum::NOTHING && pos.position[2][0].piece == PieceEnum::NOTHING && pos.position[1][0].piece == PieceEnum::NOTHING)
@@ -95,6 +144,7 @@ std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
             m.oldRookY = 0;
             m.newRookX = 3;
             m.newRookY = 0;
+            m.moved = PieceEnum::KING;
             moves.push_back(m);
         }
     }
@@ -110,6 +160,7 @@ std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
             m.oldRookY = 7;
             m.newRookX = 5;
             m.newRookY = 7;
+            m.moved = PieceEnum::KING;
             moves.push_back(m);
         }
         if (pos.blackLongCastle && pos.position[3][7].piece == PieceEnum::NOTHING && pos.position[2][7].piece == PieceEnum::NOTHING && pos.position[1][7].piece == PieceEnum::NOTHING)
@@ -122,6 +173,7 @@ std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
             m.oldRookY = 7;
             m.newRookX = 3;
             m.newRookY = 7;
+            m.moved = PieceEnum::KING;
             moves.push_back(m);
         }
     }

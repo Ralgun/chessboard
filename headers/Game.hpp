@@ -16,11 +16,12 @@ private:
     //Symbols used to conver between PieceEnum and symbol
     char* symbols = "prnbqk";
     char enumToSymbol(PieceEnum e);
-    void setupPosition(PieceReference position[8][8]);
+    void setupPosition();
 public:
     std::string getStringPosition();
     bool rawMove(std::string move);
-    bool move(Move move);
+    bool makeMoveToGame(Move m);
+    Position move(Move move, Position pos);
     std::vector<Move> findMovesForAllPieces();
     Game();
     ~Game();

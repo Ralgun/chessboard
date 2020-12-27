@@ -13,6 +13,8 @@ struct Position
     bool firstMove = false;
     Move lastMove;
     bool isWhiteOnMove = true;
+    bool inCheck = false;
+    char xWhiteKing, yWhiteKing, xBlackKing, yBlackKing;
     Position();
       
 };

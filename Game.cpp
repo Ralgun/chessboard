@@ -43,54 +43,61 @@ char Game::enumToSymbol(PieceEnum e)
 }
 
 //Puts all piece on standard position
-void Game::setupPosition(PieceReference pieces[8][8])
+Position Game::setupPosition()
 {
+    Position pos;
 
     //Make blank position
     for (int i = 2; i < 6; i++)
     {
         for (int j = 0; j < 8; j++)
         {
-            pieces[j][i] = {PieceEnum::NOTHING, false};
+            pos.position[j][i] = {PieceEnum::NOTHING, false};
         }
     }
 
     //Add pawns
     for (int i = 0; i < 8; i++)
     {
-        pieces[i][1] = {PieceEnum::PAWN, true};
-        pieces[i][6] = {PieceEnum::PAWN, false};
+        pos.position[i][1] = {PieceEnum::PAWN, true};
+        pos.position[i][6] = {PieceEnum::PAWN, false};
     }
 
     //Add ohter pieces
     //Rooks
-    pieces[0][0] = {PieceEnum::ROOK, true};
-    pieces[7][0] = {PieceEnum::ROOK, true};
-    pieces[0][7] = {PieceEnum::ROOK, false};
-    pieces[7][7] = {PieceEnum::ROOK, false};
+    pos.position[0][0] = {PieceEnum::ROOK, true};
+    pos.position[7][0] = {PieceEnum::ROOK, true};
+    pos.position[0][7] = {PieceEnum::ROOK, false};
+    pos.position[7][7] = {PieceEnum::ROOK, false};
     //Knights
-    pieces[1][0] = {PieceEnum::KNIGHT, true};
-    pieces[6][0] = {PieceEnum::KNIGHT, true};
-    pieces[1][7] = {PieceEnum::KNIGHT, false};
-    pieces[6][7] = {PieceEnum::KNIGHT, false};
+    pos.position[1][0] = {PieceEnum::KNIGHT, true};
+    pos.position[6][0] = {PieceEnum::KNIGHT, true};
+    pos.position[1][7] = {PieceEnum::KNIGHT, false};
+    pos.position[6][7] = {PieceEnum::KNIGHT, false};
     //Bishops
-    pieces[2][0] = {PieceEnum::BISHOP, true};
-    pieces[5][0] = {PieceEnum::BISHOP, true};
-    pieces[2][7] = {PieceEnum::BISHOP, false};
-    pieces[5][7] = {PieceEnum::BISHOP, false};
+    pos.position[2][0] = {PieceEnum::BISHOP, true};
+    pos.position[5][0] = {PieceEnum::BISHOP, true};
+    pos.position[2][7] = {PieceEnum::BISHOP, false};
+    pos.position[5][7] = {PieceEnum::BISHOP, false};
     //Queens
-    pieces[3][0] = {PieceEnum::QUEEN, true};
-    pieces[3][7] = {PieceEnum::QUEEN, false};
+    pos.position[3][0] = {PieceEnum::QUEEN, true};
+    pos.position[3][7] = {PieceEnum::QUEEN, false};
     //Kings
-    pieces[4][0] = {PieceEnum::KING, true};
-    pieces[4][7] = {PieceEnum::KING, false};
+    pos.position[4][0] = {PieceEnum::KING, true};
+    pos.position[4][7] = {PieceEnum::KING, false};
+    pos.xWhiteKing = 4;
+    pos.yWhiteKing = 0;
+    pos.xBlackKing = 4;
+    pos.yBlackKing = 7;
     //Board's complete
+
+    return pos;
 }
 
-Game::Game() 
+Game::Game()
 {
     Position pos;
-    setupPosition(pos.position);
+    setupPosition();
 
     pos.firstMove     = true;
     pos.isWhiteOnMove = true;
@@ -135,18 +142,24 @@ bool Game::rawMove(std::string raw)
     {
         if (m == moveVar)
         {
-            return move(m);
+            return makeMoveToGame(m);
         }
     }
     return true;
 }
 
-bool Game::move(Move pMove)
+bool Game::makeMoveToGame(Move pMove)
+{
+    positions.push_back(move(pMove, positions.back()));
+
+    return false;
+}
+
+Position Game::move(Move pMove, Position pos)
 {
 
     //TODO castles and en peasant
     //Fetching current position
-    Position pos     = positions.back();
     PieceReference p = pos.position[pMove.xStart][pMove.yStart];
     //Promotion
     if (pMove.promotion != PieceEnum::NOTHING)
@@ -181,15 +194,27 @@ bool Game::move(Move pMove)
         pos.position[pMove.oldRookX][pMove.oldRookY].piece = PieceEnum::NOTHING;
         pos.position[pMove.newRookX][pMove.newRookY] = rook;
     }
+    //Special case: king move
+    if (p.piece == PieceEnum::KING)
+    {
+        if (pos.isWhiteOnMove)
+        {
+            pos.xWhiteKing = pMove.xEnd;
+            pos.yWhiteKing = pMove.yEnd;
+        }
+        else
+        {
+            pos.xBlackKing = pMove.xEnd;
+            pos.yBlackKing = pMove.yEnd;
+        }
+    }
 
     pos.isWhiteOnMove = !pos.isWhiteOnMove;
     pMove.moved = p.piece;
     pos.lastMove = pMove;
     pos.firstMove = false;
 
-    positions.push_back(pos);
-
-    return false;
+    return pos;
 }
 
 std::string Game::getStringPosition()
