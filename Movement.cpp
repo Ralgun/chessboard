@@ -71,26 +71,30 @@ std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
         std::cout << "Unfiltered: " << (int)m.xStart << (int)m.yStart << (int)m.xEnd << (int)m.yEnd << "\n";
     }
     std::cout << "Number of moves before remove: " << moves.size() << "\n";
-    moves.erase(std::remove_if(moves.begin(), moves.end(), [&](Move m) -> bool {
+    moves.erase(std::remove_if(moves.begin(), moves.end(), [&](Move& m) -> bool {
         
-        char xKing, yKing;
+        char xKing, yKing, xEnemy, yEnemy;
         Position theoreticalPos = move(m, pos);
         if (pos.isWhiteOnMove)
         {
             xKing = theoreticalPos.xWhiteKing;
             yKing = theoreticalPos.yWhiteKing;
+            xEnemy = theoreticalPos.xBlackKing;
+            yEnemy = theoreticalPos.yBlackKing;
         }
         else
         {
             xKing = theoreticalPos.xBlackKing;
             yKing = theoreticalPos.yBlackKing;
+            xEnemy = theoreticalPos.xWhiteKing;
+            yEnemy = theoreticalPos.yWhiteKing;
         }
         if (isInCheck(xKing, yKing, pos.isWhiteOnMove, theoreticalPos))
         {
             return true;
         }
         //Check if move gives check
-        //m.givesCheck = isInCheck(xKing, yKing, pos.isWhiteOnMove, theoreticalPos);
+        m.givesCheck = isInCheck(xEnemy, yEnemy, !pos.isWhiteOnMove, theoreticalPos);
         return false;
     }), moves.end());
     for (Move m : moves)
@@ -105,45 +109,36 @@ bool Movement::isInCheck(char x, char y, bool checkWhite, Position pos)
 {
     //TODO look for double checks
     //Check for orthogonall movement (rooks, queens)
-    std::cout <<"ortho\n";
     for (Move m : checkSlidingMovement(x, y, rookDirections, checkWhite, pos, nullptr))
     {
         if (pos.position[m.xEnd][m.yEnd].piece == PieceEnum::ROOK || pos.position[m.xEnd][m.yEnd].piece == PieceEnum::QUEEN)
         {
-            std::cout <<"ortho done\n";
             return true;
         }
     }
     //Check diagonal movement (queens, bishops)
-    std::cout <<"diagonal\n";
     for (Move m : checkSlidingMovement(x, y, bishopDirections, checkWhite, pos, nullptr))
     {
         if (pos.position[m.xEnd][m.yEnd].piece == PieceEnum::BISHOP || pos.position[m.xEnd][m.yEnd].piece == PieceEnum::QUEEN)
         {
-            std::cout <<"diagonal done\n";
             return true;
         }
     }
-    std::cout <<"knight\n";
     //Check knight movement
     for (Move m : checkKnightMovement(x, y, checkWhite, pos, nullptr))
     {
         if (pos.position[m.xEnd][m.yEnd].piece == PieceEnum::KNIGHT)
         {
-            std::cout <<"knight done\n";
             return true;
         }
     }
     //Check pawn movement
     //It looks bad, but partially calculating pawn's movement avoids using entire findMovesForPawn(). findMovesForPawn() should be probably split
-    //TODO check if the coordinates aren't out of range
-    std::cout <<"pawn\n";
     if (checkWhite)
     {
         if ((x+1 < 8 && y+1 < 8 && pos.position[x+1][y+1].piece == PieceEnum::PAWN && pos.position[x+1][y+1].isWhite == !checkWhite) ||
             (x-1 >= 0 && y+1 < 8 && pos.position[x-1][y+1].piece == PieceEnum::PAWN && pos.position[x-1][y+1].isWhite == !checkWhite))
         {
-            std::cout <<"pawn done\n";
             return true;
         }
     }
@@ -152,12 +147,10 @@ bool Movement::isInCheck(char x, char y, bool checkWhite, Position pos)
         if ((x+1 < 8 && y-1 >= 0 && pos.position[x+1][y-1].piece == PieceEnum::PAWN && pos.position[x+1][y-1].isWhite == !checkWhite) ||
             (x-1 >= 0 && y-1 >= 0 && pos.position[x-1][y-1].piece == PieceEnum::PAWN && pos.position[x-1][y-1].isWhite == !checkWhite))
         {
-            std::cout <<"pawn done\n";
             return true;
         }
     }
 
-    std::cout <<"false\n";
     return false;
 }
 
