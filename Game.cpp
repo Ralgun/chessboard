@@ -96,8 +96,7 @@ Position Game::setupPosition()
 
 Game::Game()
 {
-    Position pos;
-    setupPosition();
+    Position pos = setupPosition();
 
     pos.firstMove     = true;
     pos.isWhiteOnMove = true;
@@ -150,71 +149,9 @@ bool Game::rawMove(std::string raw)
 
 bool Game::makeMoveToGame(Move pMove)
 {
-    positions.push_back(move(pMove, positions.back()));
+    positions.push_back(movement.move(pMove, positions.back()));
 
     return false;
-}
-
-Position Game::move(Move pMove, Position pos)
-{
-
-    //TODO castles and en peasant
-    //Fetching current position
-    PieceReference p = pos.position[pMove.xStart][pMove.yStart];
-    //Promotion
-    if (pMove.promotion != PieceEnum::NOTHING)
-    {
-        p.piece = pMove.promotion;
-    }
-
-    pos.position[pMove.xStart][pMove.yStart].piece = PieceEnum::NOTHING;
-    pos.position[pMove.xEnd][pMove.yEnd] = p;
-
-    if (pos.isWhiteOnMove)
-    {
-        pos.whiteShortCastle = !pMove.removeShortCastle & pos.whiteShortCastle;
-        pos.whiteLongCastle = !pMove.removeLongCastle & pos.whiteLongCastle;
-    }
-    else
-    {
-        pos.blackShortCastle = !pMove.removeShortCastle & pos.blackShortCastle;
-        pos.blackLongCastle = !pMove.removeLongCastle & pos.blackLongCastle;
-    }
-
-    //Special case: en passant
-    if (pMove.enpassant)
-    {
-        char mult = pos.isWhiteOnMove ? -1 : 1;
-        pos.position[pMove.xEnd][pMove.yEnd+mult].piece = PieceEnum::NOTHING;
-    }
-    //Special case: castling
-    if (pMove.castle)
-    {
-        PieceReference rook = pos.position[pMove.oldRookX][pMove.oldRookY];
-        pos.position[pMove.oldRookX][pMove.oldRookY].piece = PieceEnum::NOTHING;
-        pos.position[pMove.newRookX][pMove.newRookY] = rook;
-    }
-    //Special case: king move
-    if (p.piece == PieceEnum::KING)
-    {
-        if (pos.isWhiteOnMove)
-        {
-            pos.xWhiteKing = pMove.xEnd;
-            pos.yWhiteKing = pMove.yEnd;
-        }
-        else
-        {
-            pos.xBlackKing = pMove.xEnd;
-            pos.yBlackKing = pMove.yEnd;
-        }
-    }
-
-    pos.isWhiteOnMove = !pos.isWhiteOnMove;
-    pMove.moved = p.piece;
-    pos.lastMove = pMove;
-    pos.firstMove = false;
-
-    return pos;
 }
 
 std::string Game::getStringPosition()
@@ -235,7 +172,8 @@ std::string Game::getStringPosition()
         }
         s += "\n";
     }
-
+    s += pos.inCheck ? "Check!\n" : "";
+    s += pos.isWhiteOnMove ? "White to move...\n" : "Black to move...\n";
     return s;
 }
 

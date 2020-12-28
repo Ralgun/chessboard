@@ -11,5 +11,6 @@ struct Move
     bool removeLongCastle = false;
     bool enpassant = false;
     char oldRookX, oldRookY, newRookX, newRookY;
+    bool givesCheck = false;
     bool operator==(const Move& rhs);
 };

@@ -20,6 +20,7 @@ void run()
             while (gGame.rawMove(move))
             {
                 //Error occured
+                std::cout << "\n" << gGame.getStringPosition();
                 std::cout << "Please, write your input again...\n";
                 std::cin >> move;
 
@@ -27,7 +28,7 @@ void run()
         }
         else
         {
-            //TODO
+            
         }
         std::cout << "\n" << gGame.getStringPosition();
     }
