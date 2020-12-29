@@ -66,11 +66,6 @@ std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
     }
 
     //Filter out illegal moves and calculate if move gives check (Merging these two functions might be a bad idea. Hopefuly, nothing bad comes from this)
-    for (Move m : moves)
-    {
-        std::cout << "Unfiltered: " << (int)m.xStart << (int)m.yStart << (int)m.xEnd << (int)m.yEnd << "\n";
-    }
-    std::cout << "Number of moves before remove: " << moves.size() << "\n";
     moves.erase(std::remove_if(moves.begin(), moves.end(), [&](Move& m) -> bool {
         
         char xKing, yKing, xEnemy, yEnemy;
@@ -97,10 +92,6 @@ std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
         m.givesCheck = isInCheck(xEnemy, yEnemy, !pos.isWhiteOnMove, theoreticalPos);
         return false;
     }), moves.end());
-    for (Move m : moves)
-    {
-        std::cout << "Allowed move: " << (int)m.xStart << (int)m.yStart << (int)m.xEnd << (int)m.yEnd << "\n";
-    }
 
     return moves;
 }
