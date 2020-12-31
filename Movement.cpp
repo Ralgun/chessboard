@@ -6,6 +6,13 @@
 Movement::Movement()
 {
 
+    diagonalMovementPieces.push_back(PieceEnum::BISHOP);
+    diagonalMovementPieces.push_back(PieceEnum::QUEEN);
+    orthogonalMovementPieces.push_back(PieceEnum::ROOK);
+    orthogonalMovementPieces.push_back(PieceEnum::QUEEN);
+    knightMovementPieces.push_back(PieceEnum::KNIGHT);
+    pawnMovementPieces.push_back(PieceEnum::PAWN);
+
     rookDirections.push_back(std::pair<char, char>(1,0));
     rookDirections.push_back(std::pair<char, char>(0,1));
     rookDirections.push_back(std::pair<char, char>(-1,0));
@@ -22,7 +29,7 @@ Movement::Movement()
     queenDirections.insert(queenDirections.end(), bishopDirections.begin(), bishopDirections.end());
 }
 
-#include <iostream>
+    #include <iostream>
 
 std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
 {
@@ -64,7 +71,7 @@ std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
             moves.insert(moves.end(), b.begin(), b.end());
         break;
     }
-
+    std::cout << "Moves before filter: " << moves.size() << "\n"; 
     //Filter out illegal moves and calculate if move gives check (Merging these two functions might be a bad idea. Hopefuly, nothing bad comes from this)
     moves.erase(std::remove_if(moves.begin(), moves.end(), [&](Move& m) -> bool {
         
@@ -92,6 +99,8 @@ std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
         m.givesCheck = isInCheck(xEnemy, yEnemy, !pos.isWhiteOnMove, theoreticalPos);
         return false;
     }), moves.end());
+    std::cout << "Moves after filter: " << moves.size() << "\n"; 
+
 
     return moves;
 }
@@ -102,7 +111,7 @@ bool Movement::isInCheck(char x, char y, bool checkWhite, Position pos)
     //Check for orthogonall movement (rooks, queens)
     for (Move m : checkSlidingMovement(x, y, rookDirections, checkWhite, pos, nullptr))
     {
-        if (pos.position[m.xEnd][m.yEnd].piece == PieceEnum::ROOK || pos.position[m.xEnd][m.yEnd].piece == PieceEnum::QUEEN)
+        if (isSquareOccupiedBySpecificEnemyPiece(m.xEnd, m.yEnd, checkWhite, orthogonalMovementPieces, pos))
         {
             return true;
         }
@@ -110,7 +119,7 @@ bool Movement::isInCheck(char x, char y, bool checkWhite, Position pos)
     //Check diagonal movement (queens, bishops)
     for (Move m : checkSlidingMovement(x, y, bishopDirections, checkWhite, pos, nullptr))
     {
-        if (pos.position[m.xEnd][m.yEnd].piece == PieceEnum::BISHOP || pos.position[m.xEnd][m.yEnd].piece == PieceEnum::QUEEN)
+        if (isSquareOccupiedBySpecificEnemyPiece(m.xEnd, m.yEnd, checkWhite, diagonalMovementPieces, pos))
         {
             return true;
         }
@@ -127,16 +136,16 @@ bool Movement::isInCheck(char x, char y, bool checkWhite, Position pos)
     //It looks bad, but partially calculating pawn's movement avoids using entire findMovesForPawn(). findMovesForPawn() should be probably split
     if (checkWhite)
     {
-        if ((x+1 < 8 && y+1 < 8 && pos.position[x+1][y+1].piece == PieceEnum::PAWN && pos.position[x+1][y+1].isWhite == !checkWhite) ||
-            (x-1 >= 0 && y+1 < 8 && pos.position[x-1][y+1].piece == PieceEnum::PAWN && pos.position[x-1][y+1].isWhite == !checkWhite))
+        if ((x+1 < 8 && y+1 < 8 && isSquareOccupiedBySpecificEnemyPiece(x+1, y+1, checkWhite, pawnMovementPieces, pos)) ||
+            (x-1 >= 0 && y+1 < 8 && isSquareOccupiedBySpecificEnemyPiece(x-1, y+1, checkWhite, pawnMovementPieces, pos)))
         {
             return true;
         }
     }
     else 
     {
-        if ((x+1 < 8 && y-1 >= 0 && pos.position[x+1][y-1].piece == PieceEnum::PAWN && pos.position[x+1][y-1].isWhite == !checkWhite) ||
-            (x-1 >= 0 && y-1 >= 0 && pos.position[x-1][y-1].piece == PieceEnum::PAWN && pos.position[x-1][y-1].isWhite == !checkWhite))
+        if ((x+1 < 8 && y-1 >= 0 && isSquareOccupiedBySpecificEnemyPiece(x+1, y-1, checkWhite, pawnMovementPieces, pos)) ||
+            (x-1 >= 0 && y-1 >= 0 && isSquareOccupiedBySpecificEnemyPiece(x-1, y-1, checkWhite, pawnMovementPieces, pos)))
         {
             return true;
         }
@@ -145,6 +154,7 @@ bool Movement::isInCheck(char x, char y, bool checkWhite, Position pos)
     return false;
 }
 
+//TODO make readable
 std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
 {
     std::vector<Move> moves;
@@ -154,7 +164,7 @@ std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
 
     if (isWhite)
     {
-        if (pos.whiteShortCastle && pos.position[5][0].piece == PieceEnum::NOTHING && pos.position[6][0].piece == PieceEnum::NOTHING)
+        if (pos.whiteShortCastle && !isSquareOccupied(5, 0, pos) && !isSquareOccupied(6, 0, pos))
         {
             Move m = {4, 0, 6, 0};
             m.castle = true;
@@ -167,7 +177,7 @@ std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
             m.moved = PieceEnum::KING;
             moves.push_back(m);
         }
-        if (pos.whiteLongCastle && pos.position[3][0].piece == PieceEnum::NOTHING && pos.position[2][0].piece == PieceEnum::NOTHING && pos.position[1][0].piece == PieceEnum::NOTHING)
+        if (pos.whiteLongCastle && !isSquareOccupied(3, 0, pos) && !isSquareOccupied(2, 0, pos) && !isSquareOccupied(1, 0, pos))
         {
             Move m = {4, 0, 2, 0};
             m.castle = true;
@@ -183,7 +193,7 @@ std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
     }
     else
     {
-        if (pos.blackShortCastle && pos.position[5][7].piece == PieceEnum::NOTHING && pos.position[6][7].piece == PieceEnum::NOTHING)
+        if (pos.blackShortCastle && !isSquareOccupied(5, 7, pos) && !isSquareOccupied(6, 7, pos))
         {
             Move m = {4, 7, 6, 7};
             m.castle = true;
@@ -196,7 +206,7 @@ std::vector<Move> Movement::generateCastlingMoves(bool isWhite, Position pos)
             m.moved = PieceEnum::KING;
             moves.push_back(m);
         }
-        if (pos.blackLongCastle && pos.position[3][7].piece == PieceEnum::NOTHING && pos.position[2][7].piece == PieceEnum::NOTHING && pos.position[1][7].piece == PieceEnum::NOTHING)
+        if (pos.blackLongCastle && !isSquareOccupied(3, 7, pos) && !isSquareOccupied(2, 7, pos) && !isSquareOccupied(1, 7, pos))
         {
             Move m = {4, 7, 2, 7};
             m.castle = true;
@@ -224,7 +234,7 @@ std::vector<Move> Movement::checkKingMovement(char x, char y, bool isWhite, Posi
         for (char yD : a)
         {
             if ((x+xD >= 0 && x+xD < 8 && y+yD >= 0 && y+yD < 8) && 
-                ((pos.position[x+xD][y+yD].piece == PieceEnum::NOTHING) || (pos.position[x+xD][y+yD].isWhite != isWhite)))
+                (isSquareEmptyOrEnemy(x+xD, y+yD, isWhite, pos)))
             {
                 Move m = {x, y, x+xD, y+yD};
                 if (f != nullptr)
@@ -252,9 +262,8 @@ std::vector<Move> Movement::checkKnightMovement(char x, char y, bool isWhite, Po
         {
             char xNew = x + longerDir;
             char yNew = y + shorterDir;
-            PieceReference p = pos.position[xNew][yNew];
             if ((xNew < 8 && xNew >= 0) && (yNew < 8 && yNew >= 0) && 
-                (p.piece == PieceEnum::NOTHING || (p.isWhite != isWhite)))
+                (isSquareEmptyOrEnemy(xNew, yNew, isWhite, pos)))
             {
                 Move m = {x, y, xNew, yNew};
                 if (f != nullptr)
@@ -265,9 +274,8 @@ std::vector<Move> Movement::checkKnightMovement(char x, char y, bool isWhite, Po
             }
             xNew = x + shorterDir;
             yNew = y + longerDir;
-            p = pos.position[xNew][yNew];
             if ((xNew < 8 && xNew >= 0) && (yNew < 8 && yNew >= 0) && 
-                (p.piece == PieceEnum::NOTHING || (p.isWhite != isWhite)))
+                (isSquareEmptyOrEnemy(xNew, yNew, isWhite, pos)))
             {
                 Move m = {x, y, xNew, yNew};
                 if (f != nullptr)
@@ -340,7 +348,7 @@ std::vector<Move> Movement::findMovesForPawn(char x, char y, bool isWhite, Posit
         enemyY   =  1;
     }
     
-    if (pos.position[x][y+mult].piece == PieceEnum::NOTHING)
+    if (!isSquareOccupied(x, y+mult, pos))
     {
         //Promotion
         if (y == enemyY)
@@ -358,14 +366,14 @@ std::vector<Move> Movement::findMovesForPawn(char x, char y, bool isWhite, Posit
         else 
         {
             moves.push_back({x, y, x, y+mult});
-            if (y == initialY && pos.position[x][y+2*(mult)].piece == PieceEnum::NOTHING)
+            if (y == initialY && !isSquareOccupied(x, y+2*(mult), pos))
             {
                 moves.push_back({x, y, x, y+(2*mult)});
             }
         }
     }
     //Captures
-    if (x-1 >= 0 && pos.position[x-1][y+mult].piece != PieceEnum::NOTHING && pos.position[x-1][y+mult].isWhite != isWhite)
+    if (x-1 >= 0 && isSquareOccupiedByOpponent(x-1, y+mult, isWhite, pos))
     {
         if (y == enemyY)
         {
@@ -384,7 +392,7 @@ std::vector<Move> Movement::findMovesForPawn(char x, char y, bool isWhite, Posit
             moves.push_back({x, y, x-1, y+mult});
         }
     }
-    if (x+1 < 8 && pos.position[x+1][y+mult].piece != PieceEnum::NOTHING && pos.position[x+1][y+mult].isWhite != isWhite)
+    if (x+1 < 8 && isSquareOccupiedByOpponent(x+1, y+mult, isWhite, pos))
     {
         if (y == enemyY)
         {
@@ -476,4 +484,34 @@ Position Movement::move(Move pMove, Position pos)
     pos.firstMove = false;
 
     return pos;
+}
+
+bool Movement::isSquareEmptyOrEnemy(char x, char y, bool isWhite, Position pos)
+{
+    return !isSquareOccupied(x, y, pos) || pos.position[x][y].isWhite != isWhite;
+}
+
+bool Movement::isSquareOccupied(char x, char y, Position pos)
+{
+    return pos.position[x][y].piece != PieceEnum::NOTHING;
+}
+
+bool Movement::isSquareOccupiedByOpponent(char x, char y, bool isWhite, Position pos)
+{
+    return pos.position[x][y].piece != PieceEnum::NOTHING && pos.position[x][y].isWhite != isWhite;
+}
+
+bool Movement::isSquareOccupiedBySpecificEnemyPiece(char x, char y, bool isWhite, std::vector<PieceEnum> pieces, Position pos)
+{
+    if (isSquareOccupiedByOpponent(x, y, isWhite, pos))
+    {
+        for (PieceEnum p : pieces)
+        {
+            if (pos.position[x][y].piece == p)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }

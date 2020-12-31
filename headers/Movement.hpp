@@ -7,6 +7,17 @@
 class Movement
 {
 private:
+    bool isSquareEmptyOrEnemy(char x, char y, bool isWhite, Position pos);
+    bool isSquareOccupied(char x, char y, Position pos);
+    bool isSquareOccupiedByOpponent(char x, char y, bool isWhite, Position pos);
+    bool isSquareOccupiedBySpecificEnemyPiece(char x, char y, bool isWhite, std::vector<PieceEnum> pieces, Position pos);
+    //Helper vectors for pieces
+    std::vector<PieceEnum> diagonalMovementPieces;
+    std::vector<PieceEnum> orthogonalMovementPieces;
+    //I should think this trough
+    std::vector<PieceEnum> knightMovementPieces;
+    std::vector<PieceEnum> pawnMovementPieces;
+    //Helper vectors for sliding movement
     std::vector<std::pair<char, char>> bishopDirections;
     std::vector<std::pair<char, char>> rookDirections;
     std::vector<std::pair<char, char>> queenDirections;
