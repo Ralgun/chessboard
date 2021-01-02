@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "GameStateEnum.hpp"
 #include <iostream>
 
 char alphabetToNumber(char a)
@@ -136,7 +137,7 @@ bool Game::rawMove(std::string raw)
         return true;
     }
 
-    std::vector<Move> pieceMoves = movement.findLegalMoves(moveVar.xStart, moveVar.yStart, pos);
+    std::vector<Move> pieceMoves = movement.findLegalMovesForPiece(moveVar.xStart, moveVar.yStart, pos);
     for (Move m : pieceMoves)
     {
         if (m == moveVar)
@@ -149,7 +150,10 @@ bool Game::rawMove(std::string raw)
 
 bool Game::makeMoveToGame(Move pMove)
 {
-    positions.push_back(movement.move(pMove, positions.back()));
+    Position p = movement.move(pMove, positions.back());
+    currentMoves = assingNumOfMoves(p);
+    isGameDone(p);
+    positions.push_back(p);
 
     return false;
 }
@@ -172,9 +176,55 @@ std::string Game::getStringPosition()
         }
         s += "\n";
     }
+    
+    if (pos.state != GameState::PLAYING)
+    {
+        switch (pos.state)
+        {
+            case GameState::STALEMATE:
+                s += "Stalemate!\n";
+            break;
+            case GameState::WINBLACK:
+                s += "Black wins!\n";
+            break;
+            case GameState::WINWHITE:
+                s += "White wins!\n";
+            break;
+        }
+        return s;
+    }
+
     s += pos.inCheck ? "Check!\n" : "";
     s += pos.isWhiteOnMove ? "White to move...\n" : "Black to move...\n";
     return s;
+}
+
+std::vector<Move> Game::assingNumOfMoves(Position &pos)
+{
+    std::vector<Move> moves;
+    moves = movement.findLegalMovesForAllPieces(pos);
+    pos.numOfMovesAvailable = moves.size();
+    return moves;
+}
+
+void Game::isGameDone(Position &pos)
+{
+    if (pos.numOfMovesAvailable != 0)
+    {
+        return;
+    }
+    if (!pos.inCheck)
+    {
+        pos.state = GameState::STALEMATE;
+    }
+    else if (pos.isWhiteOnMove)
+    {
+        pos.state = GameState::WINBLACK;
+    }
+    else
+    {
+        pos.state = GameState::WINWHITE;
+    }
 }
 
 Game::~Game()

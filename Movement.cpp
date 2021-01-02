@@ -29,9 +29,27 @@ Movement::Movement()
     queenDirections.insert(queenDirections.end(), bishopDirections.begin(), bishopDirections.end());
 }
 
-    #include <iostream>
+std::vector<Move> Movement::findLegalMovesForAllPieces(Position pos)
+{
+    std::vector<Move> moves;
 
-std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            //Checks if friednly piece is on the square
+            if (isSquareOccupiedByOpponent(i, j, !pos.isWhiteOnMove, pos))
+            {
+                std::vector<Move> m = findLegalMovesForPiece(i, j, pos);
+                moves.insert(moves.end(), m.begin(), m.end());
+            }
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Move> Movement::findLegalMovesForPiece(char x, char y, Position pos)
 {
     std::vector<Move> moves;
 
@@ -71,7 +89,7 @@ std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
             moves.insert(moves.end(), b.begin(), b.end());
         break;
     }
-    std::cout << "Moves before filter: " << moves.size() << "\n"; 
+
     //Filter out illegal moves and calculate if move gives check (Merging these two functions might be a bad idea. Hopefuly, nothing bad comes from this)
     moves.erase(std::remove_if(moves.begin(), moves.end(), [&](Move& m) -> bool {
         
@@ -99,8 +117,6 @@ std::vector<Move> Movement::findLegalMoves(char x, char y, Position pos)
         m.givesCheck = isInCheck(xEnemy, yEnemy, !pos.isWhiteOnMove, theoreticalPos);
         return false;
     }), moves.end());
-    std::cout << "Moves after filter: " << moves.size() << "\n"; 
-
 
     return moves;
 }
