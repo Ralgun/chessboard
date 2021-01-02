@@ -1,6 +1,7 @@
 #pragma once
 #include "PieceReference.hpp"
 #include "Move.hpp"
+#include "GameStateEnum.hpp"
 
 struct Position
 {
@@ -15,6 +16,8 @@ struct Position
     bool isWhiteOnMove = true;
     bool inCheck = false;
     char xWhiteKing, yWhiteKing, xBlackKing, yBlackKing;
+    char numOfMovesAvailable;
+    GameState state = GameState::PLAYING;
     Position();
       
 };

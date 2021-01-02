@@ -27,7 +27,8 @@ public:
     std::vector<Move> findMovesForPawn(char x, char y, bool isWhite, Position pos);
     std::vector<Move> generateCastlingMoves(bool isWhite, Position pos);
     std::vector<Move> checkKingMovement(char x, char y, bool isWhite, Position pos, void (*f)(Move* pMove));
-    std::vector<Move> findLegalMoves(char x, char y, Position pos);
+    std::vector<Move> findLegalMovesForAllPieces(Position pos);
+    std::vector<Move> findLegalMovesForPiece(char x, char y, Position pos);
     std::vector<Move> checkKnightMovement(char x, char y, bool isWhite, Position pos, void (*f)(Move* pMove));
     std::vector<Move> checkSlidingMovement(char x, char y, std::vector<std::pair<char, char>> directions, bool isWhite, Position pos, void (*f)(Move* pMove));
     Position move(Move move, Position pos);
