@@ -193,7 +193,7 @@ std::string Game::getStringPosition()
         }
         return s;
     }
-
+    s += std::to_string(pos.currentMoveNum) + "\n";
     s += pos.inCheck ? "Check!\n" : "";
     s += pos.isWhiteOnMove ? "White to move...\n" : "Black to move...\n";
     return s;
@@ -209,6 +209,7 @@ std::vector<Move> Game::assingNumOfMoves(Position &pos)
 
 void Game::isGameDone(Position &pos)
 {
+
     //Threefold repetition
     int i = 0;
     for (Position p : positions)
@@ -223,6 +224,13 @@ void Game::isGameDone(Position &pos)
             }
         }
     }
+
+    //Fifty move rule
+    if (pos.currentMoveNum == pos.fiftyMoveRuleDeadline)
+    {
+        pos.state = GameState::STALEMATE;
+    }
+
     if (pos.numOfMovesAvailable != 0)
     {
         return;

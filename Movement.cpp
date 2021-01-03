@@ -451,6 +451,13 @@ Position Movement::move(Move pMove, Position pos)
         p.piece = pMove.promotion;
     }
 
+    //Fifty move rule
+    if (pos.position[pMove.xEnd][pMove.yEnd].piece != PieceEnum::NOTHING || p.piece == PieceEnum::PAWN)
+    {
+        //Refresh the counter
+        pos.fiftyMoveRuleDeadline = pos.currentMoveNum + 100;
+    }
+
     pos.position[pMove.xStart][pMove.yStart].piece = PieceEnum::NOTHING;
     pos.position[pMove.xEnd][pMove.yEnd] = p;
 
@@ -498,6 +505,7 @@ Position Movement::move(Move pMove, Position pos)
     pMove.moved = p.piece;
     pos.lastMove = pMove;
     pos.firstMove = false;
+    pos.currentMoveNum++;
 
     return pos;
 }

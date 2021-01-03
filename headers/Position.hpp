@@ -18,6 +18,9 @@ struct Position
     char xWhiteKing, yWhiteKing, xBlackKing, yBlackKing;
     char numOfMovesAvailable;
     GameState state = GameState::PLAYING;
+    //While in chess a move consits of both white and black player moving, here each move with a piece increments this value by one
+    int currentMoveNum = 1;
+    int fiftyMoveRuleDeadline = 101;
     Position();
     bool operator==(const Position& rhs);
       
