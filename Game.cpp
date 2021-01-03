@@ -216,7 +216,7 @@ void Game::isGameDone(Position &pos)
         if (p == pos)
         {
             i++;
-            if (i == 3)
+            if (i == 2)
             {
                 pos.state = GameState::STALEMATE;
                 return;
