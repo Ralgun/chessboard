@@ -101,7 +101,8 @@ Game::Game()
 
     pos.firstMove     = true;
     pos.isWhiteOnMove = true;
-    
+    currentMoves = assingNumOfMoves(pos);
+
     positions.push_back(pos);
 }
 
@@ -137,8 +138,7 @@ bool Game::rawMove(std::string raw)
         return true;
     }
 
-    std::vector<Move> pieceMoves = movement.findLegalMovesForPiece(moveVar.xStart, moveVar.yStart, pos);
-    for (Move m : pieceMoves)
+    for (Move m : currentMoves)
     {
         if (m == moveVar)
         {
