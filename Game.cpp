@@ -209,6 +209,20 @@ std::vector<Move> Game::assingNumOfMoves(Position &pos)
 
 void Game::isGameDone(Position &pos)
 {
+    //Threefold repetition
+    int i = 0;
+    for (Position p : positions)
+    {
+        if (p == pos)
+        {
+            i++;
+            if (i == 3)
+            {
+                pos.state = GameState::STALEMATE;
+                return;
+            }
+        }
+    }
     if (pos.numOfMovesAvailable != 0)
     {
         return;

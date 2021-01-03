@@ -19,6 +19,6 @@ struct Position
     char numOfMovesAvailable;
     GameState state = GameState::PLAYING;
     Position();
+    bool operator==(const Position& rhs);
       
 };
-
